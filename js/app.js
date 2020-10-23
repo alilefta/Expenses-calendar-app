@@ -1,29 +1,75 @@
+class Expense{
+	constructor(name, date, amount){
+		this.name = name;
+		this.date = date;
+		this.amount = amount;
+	}
+}
+
+const Model = {
+	getData: function(){
+		let expenses;
+		if(localStorage.getItem('expenses') === null){
+			expenses = [];
+		}else{
+			expenses = JSON.parse(localStorage.getItem('expenses'));
+		}
+		return expenses;
+	},
+	setData: function(expense){
+		let expenses = Model.getData();
+		console.log(expenses);
+		expenses.push(expense);
+		localStorage.setItem('expenses', JSON.stringify(expenses));
+	}
+}
+
+
+const ModelView = {
+	showItems: function(){
+		return Model.getData();
+	}
+}
+
 const View = {
 	init: function(){
 		const form = document.querySelector('#form');
-		const eName = document.querySelector('.eName');
-		const eDate = document.querySelector('.eDate');
-		const eAmount = document.querySelector('.eAmount');
-		const tBody = document.querySelector('tbody');
-		const noItems = document.querySelector('.noItems');
-
 		form.addEventListener('submit', (e)=>{
+			const eName = document.querySelector('.eName').value;
+			const eDate = document.querySelector('.eDate').value;
+			const eAmount = document.querySelector('.eAmount').value;
 			e.preventDefault();
-			console.log(eName.value)
-			if(eName.value && eDate.value && eAmount.value){
-				const tr = document.createElement('tr');
-				tr.innerHTML = `
-					<td>${eName.value[0].toUpperCase() + eName.value.slice(1)}</td>
-					<td>${eDate.value}</td>
-					<td>$${eAmount.value}</td>`;
 
-				tBody.appendChild(tr);
-				this.checkTable();
-			}else{
+			let expense = new Expense(eName, eDate, eAmount);
+
+			if(eName === '' || eDate === '' || eAmount === ''){
 				alert('Please fill all blanks!')
+			}else{
+				this.addExpenseToList(expense);
+				Model.setData(expense);
 			}
 
 		});
+		document.addEventListener('DOMContentLoaded', View.displayExp)
+	},
+	displayExp: function(){
+		const expenses = Model.getData();
+		expenses.forEach((item) => View.addExpenseToList(item));
+	},
+	addExpenseToList: function(expense){
+		const tBody = document.querySelector('tbody');
+		const tr = document.createElement('tr');
+		tr.innerHTML = `
+			<td>${expense.name[0].toUpperCase() + expense.name.slice(1)}</td>
+			<td>${expense.date}</td>
+			<td>$${expense.amount}</td>`;
+
+		tBody.appendChild(tr);
+		this.checkTable();
+
+	},
+	removeExp: function(){
+
 	},
 	checkTable: function(){
 		const tBody = document.querySelector('tbody');
